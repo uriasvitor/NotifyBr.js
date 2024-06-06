@@ -1,0 +1,17 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#notify .sucess{
+    background-color: rgb(65, 238, 65);
+}
+
+#notify .erro{
+    background-color: rgb(255, 17, 0);
+}
+
+#notify .warning{
+    background-color: rgb(238, 198, 65);
+}

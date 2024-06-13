@@ -2,6 +2,10 @@
  * A class for creating and managing notifications on a web page.
  */
 class Notify {
+  constructor() {
+    this.timeoutIds = new Map(); // Store timeouts for each notification
+  }
+
   /**
    * Creates a notification and displays it on the web page.
    * @param {string} message - The message to display in the notification.
@@ -18,24 +22,28 @@ class Notify {
     // Parse delay to an integer
     const delayInt = parseInt(delay);
 
-    // Generate a unique ID for the notification
-    const notifyId = this.getRandomNumber();
+    // Generate a unique random ID between 0 and 50 for the notification.
+    const notifyId = Math.floor(Math.random() * 50);
 
     // Insert the notification into the DOM
     notifyIdElement.insertAdjacentHTML(
       'beforeend',
-      `<p id="notify-${notifyId}" class="${type.toLowerCase()}">${message}</p>`
+      `<div id="notify-${notifyId}" class="${type.toLowerCase()}">${message}</div>`
     );
 
     // Get the current notification element by ID
     const getCurrentNotify = document.getElementById(`notify-${notifyId}`);
 
     // Remove the notification after the specified delay
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       if (getCurrentNotify) {
         getCurrentNotify.remove();
       }
+      this.timeoutIds.delete(notifyId);
     }, delayInt);
+
+    // Store the timeout ID
+    this.timeoutIds.set(notifyId, timeoutId);
   }
 
   /**
@@ -48,12 +56,6 @@ class Notify {
    */
   validateInputs({ message, type, delay }) {
     const validTypes = ['erro', 'warn', 'info', 'sucess'];
-
-    // If delay is ommited the default value is 1 second
-    if(delay == undefined){
-      this.delay = 1000;
-    }
-
 
     // Check if message is a non-empty string
     if (typeof message !== 'string' || !message.trim()) {
@@ -72,12 +74,21 @@ class Notify {
   }
 
   /**
-   * Generates a random number between 0 and 50.
-   * @returns {number} A random number between 0 and 50.
+   * Delete the notify without delay
+   * @param {string} notifyId - The notify id.
+   * @throws Will throw a error if id is not found
    */
-  getRandomNumber() {
-    return Math.floor(Math.random() * 50);
+  deleteInstant(notifyId) {
+    const getCurrentNotify = document.getElementById(`notify-${notifyId}`);
+
+    if (getCurrentNotify) {
+      getCurrentNotify.remove();
+      if (this.timeoutIds.has(notifyId)) {
+        clearTimeout(this.timeoutIds.get(notifyId));
+        this.timeoutIds.delete(notifyId);
+      }
+    } else {
+      throw new Error("Notify id is not found");
+    }
   }
 }
-
-export default Notify;
